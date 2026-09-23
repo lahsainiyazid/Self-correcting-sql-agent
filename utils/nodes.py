@@ -3,10 +3,10 @@ from state import builder
 from langgraph.graph import START,END 
 from langchain.tools import tool 
 from langchain.prebuilt import ToolNode,tools_condition
-from dotenv import load_dotenv find_dotenv
+from dotenv import load_dotenv,find_dotenv
 from propmts import system_message_prompt,system_message_query
 from typing import Literal
-from state import state 
+from state import state,builder  
 _=load_env(find_env)
 def text_to_query(state:state)->state:
     """
@@ -18,6 +18,9 @@ def text_to_query(state:state)->state:
     
 @tool 
 def execute_query():
+    """
+    This tool executes the sql query:
+    """
 @tool 
 def verify_query():
 def count(state:state)->Literal[END,execute_query]:
