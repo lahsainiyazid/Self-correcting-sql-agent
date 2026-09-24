@@ -12,6 +12,6 @@ with open(QUERY_PATH,"r",encoding="utf-8") as f:
 
 
 system_message_prompt=SystemMessage(content=system_prompt)
-system_megssage_query=SystemMessage(content=query_prompt)
+system_message_query=SystemMessage(content=query_prompt)
 
 
