@@ -5,7 +5,7 @@ class dbinit():
         self.db_name=db_name 
         self.create_table()
     def create_table(self,table_name:str="movies"):
-        self.table_name=table_name 
+        self.table_name=table.name 
         with sqlite3.connect(self.db_name) as conn:
             curr=conn.cursor()
             curr.execute("""CREATE TABLE IF NOT EXISTS movies 
@@ -17,7 +17,7 @@ class dbinit():
     def insert_rows(self,movies_data:list):
         with sqlite3.connect(self.db_name) as conn:
             curr=conn.cursor()
-            curr.executemany("INSERT INTO movies VALUES (?,?,?,?,?)",movies_data)
+            curr.executemany("INSERT INTO MOVIES VALUES (? ? ? ? ?)",movies_data)
 
 if __name__=="__main__":
     initial_movies=initial_movies = [
@@ -30,6 +30,6 @@ if __name__=="__main__":
         ("City of God", 2002, 8.6, "Fernando Meirelles", "Brazil"),
     ]
     db=dbinit()
-    db.insert_rows(movies_data=initial_movies)
+    insert_rows(movies_data=initial_movies)
 
 

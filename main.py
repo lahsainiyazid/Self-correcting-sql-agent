@@ -9,15 +9,13 @@ model=ChatGoogleGenerativeAI(model="gemini-2.5-flash",temperature=0)
 #Retrieve our prompts in our script :
 with open("text_to_query_prompt.md","r",encoding="utf-8") as f :
     text_to_query_prompt=f.read()
-@tool
+
 def text_to_query(state:MessagesState)->MessagesState:
     """
     This function will take user input and make it into a  SQL query!
     """
     query=model.invoke([text_to_query_prompt]+state["messages"])
     return {"messages":state["messages"]+[query.content]}
-#We equip  our llm with tools:
-model_with_tools=model.bind_tools([text_to_query])
 builder=StateGraph(MessagesState)
 builder.add_node("text_to_query",text_to_query)
 builder.add_edge(START,"text_to_query")
