@@ -18,19 +18,17 @@ def text_to_query(state:MessagesState)->MessagesState:
     This function will take user input and make it into a  SQL query!
     """
     query=model.invoke([text_to_query_prompt]+state["messages"])
-    return {"messages":state["messages"]+[query.content]}
-@tool 
-def execute_query(state:MessagesState,engine){
+    return {"messages":[query.content]}
+def execute_query(state:MessagesState):
     """
     This function will take our query and execute it using sqlalchemy
     """
-with engine.conect() as conn :
+    with engine.connect() as conn :
 #We execute the llms reply which will be our sql query :
-    result=conn.execute(text(state["messages"][-1]))
-    rows=result.fetchall()
-    return {"messages":state["messages"]+rows}
-}
-model_with_tools=model.bind_tools([execute_query])
+        result=conn.execute(text(state["messages"][-1]))
+        rows=result.fetchall()
+    return {"messages":[AIMessage(content=str(rows))]}
+
 builder=StateGraph(MessagesState)
 builder.add_node("text_to_query",text_to_query)
 builder.add_node("execute_query",execute_query)
