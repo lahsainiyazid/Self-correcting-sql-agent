@@ -13,7 +13,8 @@ engine=create_engine("sqlite:///agent.db")
 #Retrieve our prompts in our script :
 with open("text_to_query_prompt.md","r",encoding="utf-8") as f :
     text_to_query_prompt=f.read()
-
+with open("query_to_text_prompt.md","r",encoding="utf-8") as f:
+    query_to_text_prompt=f.read()
 def text_to_query(state:MessagesState)->MessagesState:
     """
     This function will take user input and make it into a  SQL query!
@@ -32,10 +33,23 @@ def execute_query(state:MessagesState):
         rows=result.fetchall()
     return {"messages":[AIMessage(content=str(rows))]}
 
+def query_to_text(state:MessagesState):
+    """
+    This function will take our query result  and turn it into human readable format!
+    """
+    query_result=state["messages"][-1]
+    query_string=query_result.content
+    llm_response=model.invoke(query_string)
+    return {"messages":llm_response}
+
+
+
 builder=StateGraph(MessagesState)
 builder.add_node("text_to_query",text_to_query)
 builder.add_node("execute_query",execute_query)
+builder.add_node("query_to_text",query_to_text)
 builder.add_edge(START,"text_to_query")
 builder.add_edge("text_to_query","execute_query")
-builder.add_edge("execute_query",END)
+builder.add_edge("execute_query","query_to_text")
+builder.add_edge("query_to_text",END)
 graph=builder.compile()
