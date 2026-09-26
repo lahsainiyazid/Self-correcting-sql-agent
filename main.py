@@ -1,5 +1,6 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph,START,END,MessagesState
+from langchain_core.messages import AIMessage
 from langchain.tools import tool 
 from dotenv import load_dotenv,find_dotenv 
 from sqlalchemy import create_engine,text
@@ -23,9 +24,11 @@ def execute_query(state:MessagesState):
     """
     This function will take our query and execute it using sqlalchemy
     """
+    last_message=state["messages"][-1]
+    sql_string=last_message.content 
     with engine.connect() as conn :
 #We execute the llms reply which will be our sql query :
-        result=conn.execute(text(state["messages"][-1]))
+        result=conn.execute(text(sql_string)) #sqlalchemy does not allow us to pass raw strings.
         rows=result.fetchall()
     return {"messages":[AIMessage(content=str(rows))]}
 
