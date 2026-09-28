@@ -5,6 +5,7 @@ from prompts import text_to_query_prompt,query_to_text_prompt
 from langchain_core.messages import AIMessage
 from sqlalchemy import text,inspect
 from langgraph.types import interrupt
+from langgraph.graph import END
 def text_to_query(state:AgentState)->AgentState:
     """
     This function will take user input and make it into a  SQL query!
@@ -12,7 +13,7 @@ def text_to_query(state:AgentState)->AgentState:
     query=model.invoke([text_to_query_prompt]+state["messages"])
     return {"messages":[AIMessage(query.content)],
             "retry_count":state.get("retry_count",0),
-            "error":state.get("Error")}
+            "error":state.get("error")}
 def execute_query(state:AgentState):
     """
     This function will take our query and execute it using sqlalchemy
@@ -29,7 +30,8 @@ def execute_query(state:AgentState):
                 result=conn.execute(text(sql_string)) #sqlalchemy does not allow us to pass raw strings.
                 rows=result.fetchall()
             return {"messages":[AIMessage(content=str(rows))],
-            "retry_count":state.get("retry_count")+1}
+            "retry_count":state.get("retry_count")+1,
+                    "error":None}
         except Exception as e:
             return {
             "messages":[AIMessage(content=f"Query Failed:{e}")],
@@ -39,7 +41,8 @@ def execute_query(state:AgentState):
     else :
         return {
             "messages":[AIMessage(content="The Query was rejected by the user")],
-            "retry_count":3
+            "retry_count":3,
+            "error":"Query was rejected by user"
         }
 
 
